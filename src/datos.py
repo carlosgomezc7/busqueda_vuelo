@@ -1,251 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<title>Proyecto: Simulaci&oacute;n de Rutas A&eacute;reas con Grafos Dirigidos</title>
-
-<style>
-body { font-family: 'DejaVu Sans', sans-serif; font-size: 10.5pt; margin: 2cm; line-height: 1.45; color: #1a1a1a; }
-h1 { font-size: 20pt; text-align: center; color: #14532d; margin-top: 0.4cm; }
-h2 { font-size: 14pt; color: #14532d; border-bottom: 2px solid #14532d; padding-bottom: 3px; margin-top: 0.9cm; }
-h3 { font-size: 12pt; color: #1e6f3e; }
-p  { text-align: justify; }
-pre { font-family: 'DejaVu Sans Mono', monospace; font-size: 7.5pt; background: #f5f5f5;
-      border: 1px solid #ccc; padding: 8px; white-space: pre-wrap; line-height: 1.25; }
-.captura { border: 2px dashed #999; background: #fafafa; text-align: center;
-           padding: 30px 10px; margin: 12px 0; font-weight: bold; color: #555; }
-table { border-collapse: collapse; width: 100%; }
-th, td { border: 1px solid #888; padding: 5px 8px; font-size: 9.5pt; text-align: left; }
-th { background: #e2efe4; }
-.portada { text-align: center; margin-top: 3cm; }
-.portada p { text-align: center; }
-li { margin-bottom: 3px; }
-</style>
-
-</head>
-<body>
-
-<div class="portada">
-<h1>Simulaci&oacute;n de Rutas A&eacute;reas con Grafos Dirigidos</h1>
-<h2>Red Nacional de Vuelos de M&eacute;xico</h2>
-<p>Proyecto de la materia de Estructuras de Datos / Programaci&oacute;n</p>
-<p><b>Nombre del alumno:</b> [ TU NOMBRE ]</p>
-<p><b>Grupo / Turno:</b> [ TU GRUPO ]</p>
-<p><b>Fecha:</b> [ FECHA ]</p>
-</div>
-
-<h2>1. Introducci&oacute;n</h2>
-
-<p>Un <b>grafo</b> es una estructura matemática formada por un conjunto de
-<b>nodos</b> (también llamados vértices) y un conjunto de <b>aristas</b>
-(también llamadas conexiones o arcos) que unen pares de nodos. Los grafos se
-utilizan para representar relaciones entre objetos: cada nodo representa un
-elemento y cada arista representa una relación o conexión entre dos de ellos.
-Por ejemplo, en un mapa de carreteras los nodos son las ciudades y las aristas
-son las carreteras que las conectan.</p>
-
-<p>Un <b>grafo dirigido</b> (tambi&eacute;n llamado digrafo) es un grafo en el
-que cada arista tiene una <b>direcci&oacute;n</b>: va desde un nodo de origen
-hasta un nodo de destino. Esto significa que la conexi&oacute;n no es
-sim&eacute;trica; es decir, si existe una arista de A hacia B, no
-necesariamente existe una arista de B hacia A. Los grafos dirigidos son
-ideales para modelar situaciones en las que el sentido importa, como el
-tr&aacute;fico en calles de un solo sentido, las redes sociales (donde se
-puede seguir a alguien sin que esa persona te siga) o los vuelos de una
-aerol&iacute;nea.</p>
-
-<p>Algunos <b>ejemplos de uso de los grafos en la vida real</b> son:</p>
-<ul>
-<li><b>Mapas y navegadores (GPS):</b> las calles y carreteras forman un grafo
-donde los nodos son las intersecciones y las aristas son las v&iacute;as;
-los algoritmos de ruta m&aacute;s corta (como el de Dijkstra) se usan para
-calcular el mejor camino.</li>
-<li><b>Redes sociales:</b> los usuarios son nodos y las amistades o
-seguimientos son aristas (en el caso de los seguimientos, aristas
-dirigidas).</li>
-<li><b>Internet y telecomunicaciones:</b> las computadoras o servidores son
-nodos y los cables o enlaces inal&aacute;mbricos son las aristas por donde
-viajan los datos.</li>
-<li><b>Rutas a&eacute;reas:</b> las ciudades son nodos y los vuelos entre
-ellas son las aristas dirigidas; es exactamente el problema que se simula en
-este proyecto.</li>
-<li><b>Redes el&eacute;ctricas y de agua potable:</b> las centrales, las
-subestaciones y los hogares se conectan mediante redes que se representan
-como grafos.</li>
-<li><b>Organigramas y procesos:</b> las jerarqu&iacute;as de una empresa o
-los diagramas de flujo de un algoritmo tambi&eacute;n son grafos dirigidos.</li>
-</ul>
-
-
-<h2>2. Justificaci&oacute;n</h2>
-
-<p>Los <b>grafos son la herramienta ideal para representar redes de
-transporte y rutas a&eacute;reas</b> por varias razones:</p>
-
-<ul>
-<li><b>Modelado natural:</b> una red de vuelos se compone de ciudades
-(nodos) y conexiones entre ellas (aristas). La correspondencia es directa:
-cada ciudad del pa&iacute;s es un nodo y cada vuelo es una arista.</li>
-
-<li><b>Direccionalidad:</b> un vuelo de la Ciudad de M&eacute;xico a Canc&uacute;n
-no implica que exista el vuelo de regreso en el mismo horario o por la misma
-aerol&iacute;nea. El uso de un <b>grafo dirigido</b> permite representar
-exactamente qu&eacute; rutas existen en cada sentido, igual que en la
-realidad.</li>
-
-<li><b>C&aacute;lculo de rutas &oacute;ptimas:</b> con algoritmos de teor&iacute;a
-de grafos, como el de Dijkstra, se puede calcular la ruta m&aacute;s corta
-(por kil&oacute;metros o por n&uacute;mero de escalas) entre dos ciudades,
-que es el problema central de cualquier aerol&iacute;nea o agencia de
-viajes.</li>
-
-<li><b>An&aacute;lisis de la red:</b> los grafos permiten identificar
-ciudades "hub" (las m&aacute;s conectadas), saber si la red es conexa o si
-alguna ciudad quedar&iacute;a incomunicada si se cancela una ruta.</li>
-
-<li><b>Generalizaci&oacute;n:</b> los mismos modelos se usan en log&iacute;stica,
-mensajer&iacute;a, reparto de paqueter&iacute;a y transporte terrestre, por lo
-que lo aprendido se aplica a muchos problemas reales.</li>
-</ul>
-
-
-<h2>3. Desarrollo del Proyecto</h2>
-
-<h3>3.1 C&oacute;mo funciona el programa</h3>
-<p>El programa se ejecuta desde la terminal con <code>python3 main.py</code>.
-Al iniciar, construye autom&aacute;ticamente una red inicial con 13 ciudades
-principales de M&eacute;xico (Ciudad de M&eacute;xico, Guadalajara, Monterrey,
-Tijuana, Canc&uacute;n, M&eacute;rida, Veracruz, Oaxaca, Puebla, Le&oacute;n,
-Puerto Vallarta, La Paz y San Luis Potos&iacute;) y 25 rutas de ejemplo. A
-continuaci&oacute;n muestra un men&uacute; con 9 opciones que permite al
-usuario administrar la red completa. Todas las ciudades precargadas son
-editables: se pueden eliminar o a&ntilde;adir rutas, igual que cualquier
-ciudad agregada despu&eacute;s.</p>
-
-<p>El sistema incluye un <b>cat&aacute;logo de 65 ciudades de M&eacute;xico</b>
-con sus coordenadas geogr&aacute;ficas reales (latitud y longitud). Al agregar
-una ciudad nueva, el usuario la busca por nombre (sin necesidad de escribir
-acentos) y el programa la coloca autom&aacute;ticamente en su posici&oacute;n
-real sobre el mapa.</p>
-
-<h3>3.2 C&oacute;mo est&aacute; estructurado el grafo</h3>
-<p>El grafo se construye con la librer&iacute;a <b>NetworkX</b> usando la clase
-<code>nx.DiGraph()</code>, es decir, un <b>grafo dirigido</b>:</p>
-<ul>
-<li>Cada <b>nodo</b> es una ciudad y almacena como atributo su posici&oacute;n
-geogr&aacute;fica <code>pos = (latitud, longitud)</code>.</li>
-<li>Cada <b>arista dirigida</b> es un vuelo y almacena como atributo su
-distancia en kil&oacute;metros (<code>km</code>), calculada con la
-<b>f&oacute;rmula de Haversine</b> a partir de las coordenadas de las dos
-ciudades.</li>
-<li>Con la distancia y una velocidad de crucero promedio de 850 km/h se
-estima la <b>duraci&oacute;n del vuelo</b> (m&aacute;s 45 minutos de
-despegue y aterrizaje).</li>
-<li>El territorio mexicano se dibuja con <b>Matplotlib</b> usando los
-pol&iacute;gonos (anillos de coordenadas) que forman la frontera del pa&iacute;s;
-las ciudades se colocan en sus coordenadas reales, simulando un mapa tipo
-"Google Maps".</li>
-</ul>
-
-<h3>3.3 C&oacute;mo funciona el men&uacute;</h3>
-<table>
-<tr><th>Opci&oacute;n</th><th>Descripci&oacute;n</th></tr>
-<tr><td>1. Agregar Ciudad</td><td>Muestra el cat&aacute;logo de 65 ciudades
-de M&eacute;xico con b&uacute;squeda por nombre; el usuario elige una y se
-agrega al grafo en sus coordenadas reales.</td></tr>
-<tr><td>2. Agregar Ruta de Vuelo</td><td>Pide ciudad de origen y destino
-(acepta nombres con o sin acentos), valida que ambas existan y crea la
-arista dirigida con su distancia. Pregunta si se desea crear tambi&eacute;n
-el vuelo de regreso (ida y vuelta).</td></tr>
-<tr><td>3. Eliminar Ciudad</td><td>Elimina una ciudad y todas sus rutas
-asociadas (incluye las precargadas).</td></tr>
-<tr><td>4. Eliminar Ruta</td><td>Elimina una conexi&oacute;n espec&iacute;fica
-entre dos ciudades.</td></tr>
-<tr><td>5. Mostrar Mapa de Rutas</td><td>Dibuja la red completa sobre el mapa
-de M&eacute;xico: fronteras del pa&iacute;s, ciudades en sus coordenadas,
-flechas dirigidas y distancia en km sobre cada ruta.</td></tr>
-<tr><td>6. Ruta M&aacute;s Corta (Dijkstra)</td><td>Calcula la mejor ruta
-entre dos ciudades minimizando la distancia (kil&oacute;metros) o el
-n&uacute;mero de escalas, y la resalta en rojo sobre el mapa.</td></tr>
-<tr><td>7. Distancia y Duraci&oacute;n</td><td>Muestra kil&oacute;metros y
-tiempo estimado de un vuelo directo o del mejor recorrido con escalas.</td></tr>
-<tr><td>8. Listar Ciudades y Rutas</td><td>Imprime en consola todas las
-ciudades con sus coordenadas y todas las rutas con su distancia.</td></tr>
-<tr><td>9. Salir</td><td>Termina el programa.</td></tr>
-</table>
-<p>Si el usuario selecciona una opci&oacute;n inv&aacute;lida (no num&eacute;rica
-o fuera de rango), el programa muestra un mensaje de error y vuelve a pedir
-la opci&oacute;n.</p>
-
-<h3>3.4 Qu&eacute; hace cada funci&oacute;n del programa</h3>
-<ul>
-<li><code>normalizar_nombre()</code>: limpia el nombre de una ciudad
-(espacios, may&uacute;sculas correctas sin capitalizar preposiciones como
-"de" o "del").</li>
-<li><code>plegar_acentos()</code>: convierte el texto a min&uacute;sculas sin
-acentos para que "Ciudad Ju&aacute;rez" se encuentre escribiendo "juarez".</li>
-<li><code>distancia_haversine()</code>: calcula la distancia en km entre dos
-puntos geogr&aacute;ficos con la f&oacute;rmula de Haversine.</li>
-<li><code>formato_duracion()</code> y <code>formato_km()</code>: dan formato
-legible a horas y kil&oacute;metros.</li>
-<li><code>RedVuelos.__init__()</code>: crea el grafo dirigido y precarga las
-ciudades y rutas iniciales.</li>
-<li><code>_agregar_nodo()</code> / <code>_agregar_arista()</code>: internas;
-agregan nodos con posici&oacute;n y aristas con distancia.</li>
-<li><code>_buscar_ciudad()</code>: encuentra el nombre can&oacute;nico de una
-ciudad tolerando may&uacute;sculas y acentos.</li>
-<li><code>agregar_ciudad()</code>: agrega una ciudad del cat&aacute;logo al
-grafo validando que no exista.</li>
-<li><code>agregar_ruta()</code>: crea la arista dirigida con su distancia en
-km y valida ciudades y duplicados.</li>
-<li><code>eliminar_ciudad()</code>: elimina el nodo y todas sus aristas.</li>
-<li><code>eliminar_ruta()</code>: elimina una arista espec&iacute;fica.</li>
-<li><code>ruta_mas_corta()</code>: aplica el algoritmo de <b>Dijkstra</b>
-(por km) o BFS (por escalas) entre dos ciudades.</li>
-<li><code>distancia_y_duracion()</code>: muestra km y tiempo del vuelo
-directo o del mejor recorrido con escalas.</li>
-<li><code>listar_red()</code>: imprime el estado completo de la red.</li>
-<li><code>mostrar_grafo()</code>: dibuja el mapa de M&eacute;xico con la red,
-las distancias y (opcionalmente) una ruta resaltada en rojo.</li>
-<li><code>mostrar_menu()</code>: imprime el men&uacute; de opciones.</li>
-<li><code>seleccionar_ciudad_del_catalogo()</code>: despliega el cat&aacute;logo
-con b&uacute;squeda y devuelve la ciudad elegida.</li>
-<li><code>principal()</code>: bucle principal que lee la opci&oacute;n del
-usuario, valida errores y ejecuta la acci&oacute;n correspondiente.</li>
-</ul>
-
-
-<h2>4. C&oacute;digo del Programa</h2>
-<p>A continuaci&oacute;n se incluye el c&oacute;digo completo del programa en
-Python. Las librer&iacute;as necesarias son <code>networkx</code> y
-<code>matplotlib</code> (instalaci&oacute;n: <code>pip install networkx
-matplotlib</code>).</p>
-<pre>&quot;&quot;&quot;
-============================================================================
- Sistema de Administración de Rutas Aéreas de México
- Simulación de rutas aéreas nacionales mediante grafos dirigidos.
-
- Cada ciudad es un nodo (con sus coordenadas reales de latitud/longitud) y
- cada vuelo es una arista dirigida (con su distancia en kilómetros).
- La red se dibuja sobre el contorno geográfico de la República Mexicana,
- simulando un mapa estilo Google Maps.
-
- Librerías utilizadas: NetworkX (grafo) y Matplotlib (visualización).
-============================================================================
-&quot;&quot;&quot;
-
-import math
-
-import matplotlib.pyplot as plt
-import networkx as nx
-
-# --------------------------------------------------------------------------
-# 1. DATOS GEOGRÁFICOS
-# --------------------------------------------------------------------------
+"""
+Módulo de datos geográficos y constantes para el Sistema de Rutas Aéreas de México.
+"""
 
 # Contorno de la República Mexicana (polígonos de los 32 estados, simplificados).
 # Cada anillo es una lista de puntos (longitud, latitud).
-FRONTERA_MEXICO = [  # lista de polígonos (anillos) del contorno del país
+FRONTERA_MEXICO = [
     [
         (-117.1361,32.5776), (-114.7131,32.7629), (-114.8031,32.6626), (-114.8113,32.5225), (-114.9327,32.5214), (-115.0531,32.2800),
         (-114.9738,32.2114), (-114.9638,31.9467), (-114.8020,31.8429), (-114.7784,31.6581), (-114.8541,31.5210), (-114.8874,31.1632),
@@ -552,7 +311,7 @@ FRONTERA_MEXICO = [  # lista de polígonos (anillos) del contorno del país
         (-97.3605,18.7704), (-97.2471,18.8834), (-97.2670,19.0818), (-97.1989,19.1585), (-97.0280,19.1192), (-97.0577,19.1849),
         (-96.9857,19.2682), (-97.3681,19.3668), (-97.4057,19.4107), (-97.3556,19.4776), (-97.4434,19.5839), (-97.3104,19.6678),
         (-97.3111,19.8714), (-97.1253,20.1427), (-97.4546,20.2543), (-97.5982,20.0842), (-97.6170,20.1735), (-97.7545,20.1963),
-        (-97.7729,20.2879), (-97.6870,20.3466), (-97.7814,20.3921), (-97.7497,20.4636), (-97.6587,20.4197), (-97.5523,20.5028),
+        (-97.729,20.2879), (-97.6870,20.3466), (-97.7814,20.3921), (-97.7497,20.4636), (-97.6587,20.4197), (-97.5523,20.5028),
         (-97.6001,20.5755), (-97.7164,20.5866), (-97.7731,20.7106), (-97.7095,20.8193), (-97.7889,20.8470), (-97.8971,20.8542),
         (-97.9135,20.6384), (-97.9993,20.5285), (-98.0968,20.6933), (-98.1816,20.5567), (-98.4917,20.3411), (-98.5800,20.3702),
         (-98.6296,20.5089), (-98.5102,20.6040), (-98.4525,20.7659), (-98.5816,20.7064), (-98.4791,20.7696), (-98.4597,20.8679),
@@ -691,110 +450,110 @@ FRONTERA_MEXICO = [  # lista de polígonos (anillos) del contorno del país
 ]
 
 # Catálogo de ciudades de México con sus coordenadas reales.
-# Formato: &quot;Nombre de la ciudad&quot;: (latitud, longitud)
+# Formato: "Nombre de la ciudad": (latitud, longitud)
 CATALOGO_CIUDADES = {
-    &quot;Acapulco&quot;: (16.86, -99.88),
-    &quot;Aguascalientes&quot;: (21.88, -102.30),
-    &quot;Campeche&quot;: (19.84, -90.53),
-    &quot;Cancún&quot;: (21.16, -86.85),
-    &quot;Celaya&quot;: (20.52, -100.81),
-    &quot;Chetumal&quot;: (18.50, -88.30),
-    &quot;Chihuahua&quot;: (28.64, -106.09),
-    &quot;Chilpancingo&quot;: (17.55, -99.50),
-    &quot;Ciudad de México&quot;: (19.43, -99.13),
-    &quot;Ciudad Juárez&quot;: (31.74, -106.49),
-    &quot;Ciudad Obregón&quot;: (27.49, -109.94),
-    &quot;Ciudad Victoria&quot;: (23.73, -99.13),
-    &quot;Colima&quot;: (19.24, -103.72),
-    &quot;Córdoba&quot;: (18.89, -96.93),
-    &quot;Cozumel&quot;: (20.51, -86.95),
-    &quot;Cuernavaca&quot;: (18.92, -99.22),
-    &quot;Culiacán&quot;: (24.80, -107.39),
-    &quot;Durango&quot;: (24.03, -104.67),
-    &quot;Ensenada&quot;: (31.87, -116.60),
-    &quot;Guadalajara&quot;: (20.67, -103.35),
-    &quot;Guaymas&quot;: (27.92, -110.90),
-    &quot;Hermosillo&quot;: (29.07, -110.96),
-    &quot;Huatulco&quot;: (15.77, -96.12),
-    &quot;Irapuato&quot;: (20.67, -101.35),
-    &quot;Ixtapa-Zihuatanejo&quot;: (17.65, -101.55),
-    &quot;La Paz&quot;: (24.14, -110.31),
-    &quot;León&quot;: (21.12, -101.68),
-    &quot;Los Cabos&quot;: (22.89, -109.91),
-    &quot;Los Mochis&quot;: (25.79, -108.99),
-    &quot;Manzanillo&quot;: (19.05, -104.32),
-    &quot;Matamoros&quot;: (25.87, -97.50),
-    &quot;Mazatlán&quot;: (23.25, -106.41),
-    &quot;Mérida&quot;: (20.97, -89.62),
-    &quot;Mexicali&quot;: (32.63, -115.45),
-    &quot;Monclova&quot;: (26.91, -101.42),
-    &quot;Monterrey&quot;: (25.69, -100.32),
-    &quot;Morelia&quot;: (19.70, -101.18),
-    &quot;Nuevo Laredo&quot;: (27.48, -99.51),
-    &quot;Oaxaca&quot;: (17.06, -96.72),
-    &quot;Pachuca&quot;: (20.12, -98.73),
-    &quot;Piedras Negras&quot;: (28.70, -100.52),
-    &quot;Poza Rica&quot;: (20.53, -97.45),
-    &quot;Puebla&quot;: (19.04, -98.20),
-    &quot;Puerto Vallarta&quot;: (20.65, -105.22),
-    &quot;Querétaro&quot;: (20.59, -100.39),
-    &quot;Reynosa&quot;: (26.08, -98.30),
-    &quot;Salamanca&quot;: (20.57, -101.19),
-    &quot;Saltillo&quot;: (25.42, -101.00),
-    &quot;San Cristóbal de las Casas&quot;: (16.74, -92.64),
-    &quot;San Luis Potosí&quot;: (22.15, -100.98),
-    &quot;Tampico&quot;: (22.23, -97.86),
-    &quot;Tapachula&quot;: (14.91, -92.26),
-    &quot;Tehuacán&quot;: (18.46, -97.39),
-    &quot;Tepic&quot;: (21.51, -104.89),
-    &quot;Tijuana&quot;: (32.51, -117.02),
-    &quot;Tlaxcala&quot;: (19.32, -98.24),
-    &quot;Toluca&quot;: (19.29, -99.66),
-    &quot;Torreón&quot;: (25.54, -103.44),
-    &quot;Tulum&quot;: (20.21, -87.46),
-    &quot;Tuxtla Gutiérrez&quot;: (16.75, -93.12),
-    &quot;Uruapan&quot;: (19.41, -102.05),
-    &quot;Veracruz&quot;: (19.17, -96.13),
-    &quot;Villahermosa&quot;: (17.99, -92.93),
-    &quot;Xalapa&quot;: (19.54, -96.93),
-    &quot;Zacatecas&quot;: (22.77, -102.58),
+    "Acapulco": (16.86, -99.88),
+    "Aguascalientes": (21.88, -102.30),
+    "Campeche": (19.84, -90.53),
+    "Cancún": (21.16, -86.85),
+    "Celaya": (20.52, -100.81),
+    "Chetumal": (18.50, -88.30),
+    "Chihuahua": (28.64, -106.09),
+    "Chilpancingo": (17.55, -99.50),
+    "Ciudad de México": (19.43, -99.13),
+    "Ciudad Juárez": (31.74, -106.49),
+    "Ciudad Obregón": (27.49, -109.94),
+    "Ciudad Victoria": (23.73, -99.13),
+    "Colima": (19.24, -103.72),
+    "Córdoba": (18.89, -96.93),
+    "Cozumel": (20.51, -86.95),
+    "Cuernavaca": (18.92, -99.22),
+    "Culiacán": (24.80, -107.39),
+    "Durango": (24.03, -104.67),
+    "Ensenada": (31.87, -116.60),
+    "Guadalajara": (20.67, -103.35),
+    "Guaymas": (27.92, -110.90),
+    "Hermosillo": (29.07, -110.96),
+    "Huatulco": (15.77, -96.12),
+    "Irapuato": (20.67, -101.35),
+    "Ixtapa-Zihuatanejo": (17.65, -101.55),
+    "La Paz": (24.14, -110.31),
+    "León": (21.12, -101.68),
+    "Los Cabos": (22.89, -109.91),
+    "Los Mochis": (25.79, -108.99),
+    "Manzanillo": (19.05, -104.32),
+    "Matamoros": (25.87, -97.50),
+    "Mazatlán": (23.25, -106.41),
+    "Mérida": (20.97, -89.62),
+    "Mexicali": (32.63, -115.45),
+    "Monclova": (26.91, -101.42),
+    "Monterrey": (25.69, -100.32),
+    "Morelia": (19.70, -101.18),
+    "Nuevo Laredo": (27.48, -99.51),
+    "Oaxaca": (17.06, -96.72),
+    "Pachuca": (20.12, -98.73),
+    "Piedras Negras": (28.70, -100.52),
+    "Poza Rica": (20.53, -97.45),
+    "Puebla": (19.04, -98.20),
+    "Puerto Vallarta": (20.65, -105.22),
+    "Querétaro": (20.59, -100.39),
+    "Reynosa": (26.08, -98.30),
+    "Salamanca": (20.57, -101.19),
+    "Saltillo": (25.42, -101.00),
+    "San Cristóbal de las Casas": (16.74, -92.64),
+    "San Luis Potosí": (22.15, -100.98),
+    "Tampico": (22.23, -97.86),
+    "Tapachula": (14.91, -92.26),
+    "Tehuacán": (18.46, -97.39),
+    "Tepic": (21.51, -104.89),
+    "Tijuana": (32.51, -117.02),
+    "Tlaxcala": (19.32, -98.24),
+    "Toluca": (19.29, -99.66),
+    "Torreón": (25.54, -103.44),
+    "Tulum": (20.21, -87.46),
+    "Tuxtla Gutiérrez": (16.75, -93.12),
+    "Uruapan": (19.41, -102.05),
+    "Veracruz": (19.17, -96.13),
+    "Villahermosa": (17.99, -92.93),
+    "Xalapa": (19.54, -96.93),
+    "Zacatecas": (22.77, -102.58),
 }
 
 # Ciudades precargadas al iniciar el sistema (todas son editables).
 CIUDADES_INICIALES = [
-    &quot;Ciudad de México&quot;, &quot;Guadalajara&quot;, &quot;Monterrey&quot;, &quot;Tijuana&quot;, &quot;Cancún&quot;,
-    &quot;Mérida&quot;, &quot;Veracruz&quot;, &quot;Oaxaca&quot;, &quot;Puebla&quot;, &quot;León&quot;, &quot;Puerto Vallarta&quot;,
-    &quot;La Paz&quot;, &quot;San Luis Potosí&quot;,
+    "Ciudad de México", "Guadalajara", "Monterrey", "Tijuana", "Cancún",
+    "Mérida", "Veracruz", "Oaxaca", "Puebla", "León", "Puerto Vallarta",
+    "La Paz", "San Luis Potosí",
 ]
 
 # Rutas de vuelo de ejemplo con las que arranca el sistema.
 # Formato: (origen, destino)
 RUTAS_INICIALES = [
-    (&quot;Ciudad de México&quot;, &quot;Guadalajara&quot;),
-    (&quot;Guadalajara&quot;, &quot;Ciudad de México&quot;),
-    (&quot;Ciudad de México&quot;, &quot;Monterrey&quot;),
-    (&quot;Monterrey&quot;, &quot;Ciudad de México&quot;),
-    (&quot;Ciudad de México&quot;, &quot;Cancún&quot;),
-    (&quot;Cancún&quot;, &quot;Ciudad de México&quot;),
-    (&quot;Ciudad de México&quot;, &quot;Mérida&quot;),
-    (&quot;Mérida&quot;, &quot;Ciudad de México&quot;),
-    (&quot;Ciudad de México&quot;, &quot;Veracruz&quot;),
-    (&quot;Ciudad de México&quot;, &quot;Puebla&quot;),
-    (&quot;Ciudad de México&quot;, &quot;Oaxaca&quot;),
-    (&quot;Oaxaca&quot;, &quot;Ciudad de México&quot;),
-    (&quot;Ciudad de México&quot;, &quot;San Luis Potosí&quot;),
-    (&quot;Guadalajara&quot;, &quot;Puerto Vallarta&quot;),
-    (&quot;Puerto Vallarta&quot;, &quot;Guadalajara&quot;),
-    (&quot;Guadalajara&quot;, &quot;León&quot;),
-    (&quot;León&quot;, &quot;Ciudad de México&quot;),
-    (&quot;Monterrey&quot;, &quot;Tijuana&quot;),
-    (&quot;Tijuana&quot;, &quot;Monterrey&quot;),
-    (&quot;Monterrey&quot;, &quot;San Luis Potosí&quot;),
-    (&quot;Tijuana&quot;, &quot;La Paz&quot;),
-    (&quot;La Paz&quot;, &quot;Tijuana&quot;),
-    (&quot;Puebla&quot;, &quot;Veracruz&quot;),
-    (&quot;Veracruz&quot;, &quot;Mérida&quot;),
-    (&quot;Mérida&quot;, &quot;Cancún&quot;),
+    ("Ciudad de México", "Guadalajara"),
+    ("Guadalajara", "Ciudad de México"),
+    ("Ciudad de México", "Monterrey"),
+    ("Monterrey", "Ciudad de México"),
+    ("Ciudad de México", "Cancún"),
+    ("Cancún", "Ciudad de México"),
+    ("Ciudad de México", "Mérida"),
+    ("Mérida", "Ciudad de México"),
+    ("Ciudad de México", "Veracruz"),
+    ("Ciudad de México", "Puebla"),
+    ("Ciudad de México", "Oaxaca"),
+    ("Oaxaca", "Ciudad de México"),
+    ("Ciudad de México", "San Luis Potosí"),
+    ("Guadalajara", "Puerto Vallarta"),
+    ("Puerto Vallarta", "Guadalajara"),
+    ("Guadalajara", "León"),
+    ("León", "Ciudad de México"),
+    ("Monterrey", "Tijuana"),
+    ("Tijuana", "Monterrey"),
+    ("Monterrey", "San Luis Potosí"),
+    ("Tijuana", "La Paz"),
+    ("La Paz", "Tijuana"),
+    ("Puebla", "Veracruz"),
+    ("Veracruz", "Mérida"),
+    ("Mérida", "Cancún"),
 ]
 
 # Parámetros de simulación de vuelo
@@ -802,654 +561,9 @@ VELOCIDAD_CRUCERO_KMH = 850.0   # Velocidad media de crucero de un avión comerc
 TIEMPO_TIERRA_HORAS = 0.75      # 45 minutos extra por despegue y aterrizaje
 
 # Palabras que no se capitalizan al normalizar nombres de ciudades
-PALABRAS_MENORES = {&quot;de&quot;, &quot;del&quot;, &quot;la&quot;, &quot;las&quot;, &quot;los&quot;, &quot;y&quot;, &quot;el&quot;}
+PALABRAS_MENORES = {"de", "del", "la", "las", "los", "y", "el"}
 
 # Tabla para eliminar acentos (búsquedas sin importar tildes)
 _TABLA_ACENTOS = str.maketrans(
-    &quot;áéíóúüñÁÉÍÓÚÜÑ&quot;, &quot;aeiouuñAEIOUUN&quot;
+    "áéíóúüñÁÉÍÓÚÜÑ", "aeiouuñAEIOUUN"
 )
-
-
-# --------------------------------------------------------------------------
-# 2. FUNCIONES AUXILIARES
-# --------------------------------------------------------------------------
-
-def normalizar_nombre(nombre: str) -&gt; str:
-    &quot;&quot;&quot;
-    Normaliza el nombre de una ciudad: elimina espacios sobrantes y aplica
-    mayúsculas iniciales correctas (sin capitalizar preposiciones).
-
-    Ejemplo: &quot;ciudad DE méxico&quot; -&gt; &quot;Ciudad de México&quot;
-    &quot;&quot;&quot;
-    palabras = nombre.strip().split()
-    if not palabras:
-        return &quot;&quot;
-    resultado = []
-    for i, palabra in enumerate(palabras):
-        palabra_low = palabra.lower()
-        if palabra_low in PALABRAS_MENORES:
-            resultado.append(palabra_low)
-        else:
-            resultado.append(palabra.capitalize())
-    return &quot; &quot;.join(resultado)
-
-
-def plegar_acentos(texto: str) -&gt; str:
-    &quot;&quot;&quot;Convierte un texto a minúsculas y elimina los acentos.&quot;&quot;&quot;
-    return texto.lower().translate(_TABLA_ACENTOS)
-
-
-def distancia_haversine(lat1: float, lon1: float, lat2: float, lon2: float) -&gt; float:
-    &quot;&quot;&quot;
-    Calcula la distancia en kilómetros entre dos puntos geográficos
-    utilizando la fórmula de Haversine.
-    &quot;&quot;&quot;
-    radio_tierra = 6371.0  # Radio medio de la Tierra en kilómetros
-
-    lat1_rad = math.radians(lat1)
-    lat2_rad = math.radians(lat2)
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-
-    a = (math.sin(dlat / 2) ** 2
-         + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2)
-    c = 2 * math.asin(math.sqrt(a))
-
-    return radio_tierra * c
-
-
-def formato_duracion(horas: float) -&gt; str:
-    &quot;&quot;&quot;Convierte horas decimales a formato &#x27;X h Y min&#x27;.&quot;&quot;&quot;
-    horas_enteras = int(horas)
-    minutos = int(round((horas - horas_enteras) * 60))
-    if minutos == 60:
-        horas_enteras += 1
-        minutos = 0
-    return f&quot;{horas_enteras} h {minutos:02d} min&quot;
-
-
-def formato_km(km: float) -&gt; str:
-    &quot;&quot;&quot;Formatea kilómetros con separador de miles.&quot;&quot;&quot;
-    return f&quot;{round(km):,}&quot;.replace(&quot;,&quot;, &quot; &quot;)
-
-
-# --------------------------------------------------------------------------
-# 3. CLASE PRINCIPAL: RED DE VUELOS
-# --------------------------------------------------------------------------
-
-class RedVuelos:
-    &quot;&quot;&quot;
-    Gestiona la red de rutas aéreas de México mediante un grafo dirigido
-    (networkx.DiGraph). Cada nodo almacena su posición geográfica (lat, lon)
-    y cada arista almacena su distancia en kilómetros.
-    &quot;&quot;&quot;
-
-    def __init__(self) -&gt; None:
-        self.grafo = nx.DiGraph()
-        self._cargar_datos_iniciales()
-
-    # ----------------------- Datos iniciales -----------------------
-
-    def _cargar_datos_iniciales(self) -&gt; None:
-        &quot;&quot;&quot;Precarga las ciudades y rutas de ejemplo del sistema.&quot;&quot;&quot;
-        for nombre in CIUDADES_INICIALES:
-            self._agregar_nodo(nombre)
-        for origen, destino in RUTAS_INICIALES:
-            self._agregar_arista(origen, destino)
-
-    def _agregar_nodo(self, nombre: str) -&gt; bool:
-        &quot;&quot;&quot;Agrega un nodo con su posición geográfica. Devuelve True si se agregó.&quot;&quot;&quot;
-        if nombre not in CATALOGO_CIUDADES:
-            return False
-        lat, lon = CATALOGO_CIUDADES[nombre]
-        self.grafo.add_node(nombre, pos=(lat, lon))
-        return True
-
-    def _agregar_arista(self, origen: str, destino: str) -&gt; bool:
-        &quot;&quot;&quot;Agrega una arista dirigida con su distancia en km. Devuelve True si se agregó.&quot;&quot;&quot;
-        if self.grafo.has_edge(origen, destino):
-            return False
-        lat1, lon1 = self.grafo.nodes[origen][&quot;pos&quot;]
-        lat2, lon2 = self.grafo.nodes[destino][&quot;pos&quot;]
-        km = distancia_haversine(lat1, lon1, lat2, lon2)
-        self.grafo.add_edge(origen, destino, km=km)
-        return True
-
-    # ------------------------- Utilidades -------------------------
-
-    def _buscar_ciudad(self, texto: str) -&gt; str | None:
-        &quot;&quot;&quot;
-        Busca el nombre canónico de una ciudad en el grafo, tolerando
-        diferencias de mayúsculas y acentos. Devuelve None si no se encuentra.
-        &quot;&quot;&quot;
-        texto_norm = plegar_acentos(normalizar_nombre(texto))
-        if not texto_norm:
-            return None
-        candidatos = [
-            n for n in self.grafo.nodes
-            if plegar_acentos(n) == texto_norm
-        ]
-        if len(candidatos) == 1:
-            return candidatos[0]
-        if len(candidatos) &gt; 1:
-            print(&quot;Error: El nombre es ambiguo. ¿A cuál te refieres?&quot;)
-            for c in candidatos:
-                print(f&quot;  - {c}&quot;)
-            return None
-        return None
-
-    def _pedir_ciudad(self, mensaje: str) -&gt; str | None:
-        &quot;&quot;&quot;Pide el nombre de una ciudad existente al usuario y la valida.&quot;&quot;&quot;
-        texto = input(mensaje)
-        ciudad = self._buscar_ciudad(texto)
-        if ciudad is None:
-            print(f&quot;Error: La ciudad &#x27;{texto.strip()}&#x27; no existe. Debe agregarla primero.&quot;)
-        return ciudad
-
-    # ---------------------- Operaciones del menú ----------------------
-
-    def agregar_ciudad(self, nombre: str) -&gt; None:
-        &quot;&quot;&quot;Agrega una nueva ciudad (nodo) al grafo.&quot;&quot;&quot;
-        nombre_norm = normalizar_nombre(nombre)
-        if not nombre_norm:
-            print(&quot;Error: El nombre de la ciudad no puede estar vacío.&quot;)
-            return
-        if nombre_norm not in CATALOGO_CIUDADES:
-            print(f&quot;Error: &#x27;{nombre_norm}&#x27; no está en el catálogo de México.&quot;)
-            return
-        if self.grafo.has_node(nombre_norm):
-            print(f&quot;Error: La ciudad &#x27;{nombre_norm}&#x27; ya existe en el sistema.&quot;)
-            return
-        self._agregar_nodo(nombre_norm)
-        lat, lon = CATALOGO_CIUDADES[nombre_norm]
-        print(f&quot;Éxito: Ciudad &#x27;{nombre_norm}&#x27; agregada ({lat:.2f}, {lon:.2f}).&quot;)
-
-    def agregar_ruta(self, origen: str, destino: str) -&gt; None:
-        &quot;&quot;&quot;Agrega una ruta de vuelo dirigida entre dos ciudades.&quot;&quot;&quot;
-        origen_norm = self._buscar_ciudad(origen)
-        if origen_norm is None:
-            print(f&quot;Error: La ciudad de origen &#x27;{origen.strip()}&#x27; no existe.&quot;)
-            return
-        destino_norm = self._buscar_ciudad(destino)
-        if destino_norm is None:
-            print(f&quot;Error: La ciudad de destino &#x27;{destino.strip()}&#x27; no existe.&quot;)
-            return
-        if origen_norm == destino_norm:
-            print(&quot;Error: El origen y el destino deben ser ciudades distintas.&quot;)
-            return
-        if self.grafo.has_edge(origen_norm, destino_norm):
-            print(f&quot;Error: La ruta de &#x27;{origen_norm}&#x27; a &#x27;{destino_norm}&#x27; ya existe.&quot;)
-            return
-        self._agregar_arista(origen_norm, destino_norm)
-        km = self.grafo.edges[origen_norm, destino_norm][&quot;km&quot;]
-        print(f&quot;Éxito: Ruta de vuelo desde &#x27;{origen_norm}&#x27; hacia &#x27;{destino_norm}&#x27; &quot;
-              f&quot;({formato_km(km)} km) agregada.&quot;)
-
-    def eliminar_ciudad(self, ciudad: str) -&gt; None:
-        &quot;&quot;&quot;Elimina una ciudad y todas sus rutas asociadas.&quot;&quot;&quot;
-        ciudad_norm = self._buscar_ciudad(ciudad)
-        if ciudad_norm is None:
-            print(f&quot;Error: La ciudad &#x27;{ciudad.strip()}&#x27; no existe en el sistema.&quot;)
-            return
-        self.grafo.remove_node(ciudad_norm)
-        print(f&quot;Éxito: La ciudad &#x27;{ciudad_norm}&#x27; y todas sus rutas han sido eliminadas.&quot;)
-
-    def eliminar_ruta(self, origen: str, destino: str) -&gt; None:
-        &quot;&quot;&quot;Elimina una ruta de vuelo específica entre dos ciudades.&quot;&quot;&quot;
-        origen_norm = self._buscar_ciudad(origen)
-        destino_norm = self._buscar_ciudad(destino)
-        if origen_norm is not None and destino_norm is not None:
-            if self.grafo.has_edge(origen_norm, destino_norm):
-                self.grafo.remove_edge(origen_norm, destino_norm)
-                print(f&quot;Éxito: Ruta de &#x27;{origen_norm}&#x27; a &#x27;{destino_norm}&#x27; eliminada.&quot;)
-                return
-        print(f&quot;Error: No existe una ruta directa desde &#x27;{origen.strip()}&#x27; &quot;
-              f&quot;hacia &#x27;{destino.strip()}&#x27;.&quot;)
-
-    def ruta_mas_corta(self, origen: str, destino: str, por_km: bool = True) -&gt; list | None:
-        &quot;&quot;&quot;
-        Calcula la ruta más corta entre dos ciudades usando el algoritmo de
-        Dijkstra. Si por_km es True minimiza la distancia en kilómetros;
-        en caso contrario minimiza el número de escalas.
-        Devuelve la lista de ciudades del camino, o None si no existe.
-        &quot;&quot;&quot;
-        origen_norm = self._buscar_ciudad(origen)
-        if origen_norm is None:
-            print(f&quot;Error: La ciudad de origen &#x27;{origen.strip()}&#x27; no existe.&quot;)
-            return None
-        destino_norm = self._buscar_ciudad(destino)
-        if destino_norm is None:
-            print(f&quot;Error: La ciudad de destino &#x27;{destino.strip()}&#x27; no existe.&quot;)
-            return None
-        if origen_norm == destino_norm:
-            print(&quot;Error: El origen y el destino deben ser ciudades distintas.&quot;)
-            return None
-
-        try:
-            if por_km:
-                camino = nx.dijkstra_path(self.grafo, origen_norm, destino_norm, weight=&quot;km&quot;)
-            else:
-                camino = nx.shortest_path(self.grafo, origen_norm, destino_norm)
-        except nx.NetworkXNoPath:
-            print(f&quot;Error: No existe una ruta (directa o con escalas) de &quot;
-                  f&quot;&#x27;{origen_norm}&#x27; a &#x27;{destino_norm}&#x27;.&quot;)
-            return None
-
-        return camino
-
-    def distancia_y_duracion(self, origen: str, destino: str) -&gt; None:
-        &quot;&quot;&quot;
-        Muestra la distancia y el tiempo estimado de vuelo entre dos
-        ciudades. Si no hay vuelo directo, calcula el mejor recorrido
-        con escalas.
-        &quot;&quot;&quot;
-        origen_norm = self._buscar_ciudad(origen)
-        if origen_norm is None:
-            print(f&quot;Error: La ciudad de origen &#x27;{origen.strip()}&#x27; no existe.&quot;)
-            return
-        destino_norm = self._buscar_ciudad(destino)
-        if destino_norm is None:
-            print(f&quot;Error: La ciudad de destino &#x27;{destino.strip()}&#x27; no existe.&quot;)
-            return
-
-        if self.grafo.has_edge(origen_norm, destino_norm):
-            km = self.grafo.edges[origen_norm, destino_norm][&quot;km&quot;]
-            horas = km / VELOCIDAD_CRUCERO_KMH + TIEMPO_TIERRA_HORAS
-            print(f&quot;Vuelo directo &#x27;{origen_norm}&#x27; -&gt; &#x27;{destino_norm}&#x27;:&quot;)
-            print(f&quot;  Distancia: {formato_km(km)} km&quot;)
-            print(f&quot;  Duración estimada: {formato_duracion(horas)}&quot;)
-            return
-
-        camino = self.ruta_mas_corta(origen_norm, destino_norm, por_km=True)
-        if camino is None:
-            return
-
-        km_total = sum(
-            self.grafo.edges[u, v][&quot;km&quot;] for u, v in zip(camino, camino[1:])
-        )
-        escalas = len(camino) - 2
-        horas = km_total / VELOCIDAD_CRUCERO_KMH + TIEMPO_TIERRA_HORAS * (len(camino) - 1)
-        print(f&quot;No hay vuelo directo. Mejor recorrido con escalas:&quot;)
-        print(f&quot;  Ruta: {&#x27; -&gt; &#x27;.join(camino)} ({escalas} escala(s))&quot;)
-        print(f&quot;  Distancia total: {formato_km(km_total)} km&quot;)
-        print(f&quot;  Duración estimada: {formato_duracion(horas)}&quot;)
-
-    def listar_red(self) -&gt; None:
-        &quot;&quot;&quot;Imprime en consola todas las ciudades y rutas registradas.&quot;&quot;&quot;
-        print(f&quot;\n=== RED ACTUAL: {self.grafo.number_of_nodes()} ciudades, &quot;
-              f&quot;{self.grafo.number_of_edges()} rutas ===&quot;)
-        print(&quot;\nCiudades:&quot;)
-        for nombre in sorted(self.grafo.nodes):
-            lat, lon = self.grafo.nodes[nombre][&quot;pos&quot;]
-            print(f&quot;  - {nombre}  ({lat:.2f}, {lon:.2f})&quot;)
-        print(&quot;\nRutas de vuelo (dirigidas):&quot;)
-        if self.grafo.number_of_edges() == 0:
-            print(&quot;  (Sin rutas registradas)&quot;)
-        for origen, destino in sorted(self.grafo.edges):
-            km = self.grafo.edges[origen, destino][&quot;km&quot;]
-            print(f&quot;  - {origen} -&gt; {destino}   ({formato_km(km)} km)&quot;)
-
-    def mostrar_grafo(self, ruta_resaltada: list | None = None) -&gt; None:
-        &quot;&quot;&quot;
-        Dibuja la red de rutas aéreas sobre el mapa de México.
-        Si se indica una ruta_resaltada (lista de ciudades), se pinta
-        en rojo sobre el mapa.
-        &quot;&quot;&quot;
-        if self.grafo.number_of_nodes() == 0:
-            print(&quot;El sistema no tiene ciudades registradas para mostrar. &quot;
-                  &quot;Agregue ciudades primero.&quot;)
-            return
-
-        print(f&quot;Generando mapa con {self.grafo.number_of_nodes()} ciudades y &quot;
-              f&quot;{self.grafo.number_of_edges()} rutas...&quot;)
-
-        fig, ax = plt.subplots(figsize=(12, 8))
-
-        # Fondo oceánico
-        ax.set_facecolor(&quot;#EAF6FF&quot;)
-
-        # Contorno del territorio mexicano (todos los anillos del país)
-        todos_lons, todos_lats = [], []
-        for anillo in FRONTERA_MEXICO:
-            lons_anillo = [p[0] for p in anillo]
-            lats_anillo = [p[1] for p in anillo]
-            ax.fill(lons_anillo, lats_anillo, facecolor=&quot;#E7F2DC&quot;,
-                    edgecolor=&quot;#8FAE8B&quot;, linewidth=1.2, zorder=1)
-            todos_lons.extend(lons_anillo)
-            todos_lats.extend(lats_anillo)
-
-        # Posiciones geográficas de los nodos
-        pos = {nombre: (datos[&quot;pos&quot;][1], datos[&quot;pos&quot;][0])  # (lon, lat)
-               for nombre, datos in self.grafo.nodes(data=True)}
-
-        # Tamaño del nodo según su número de conexiones (hub)
-        grados = dict(self.grafo.degree())
-        tamano_nodos = [400 + 120 * grados[n] for n in self.grafo.nodes]
-
-        # Aristas normales (grises)
-        aristas_resaltadas = (set(zip(ruta_resaltada, ruta_resaltada[1:]))
-                              if ruta_resaltada else set())
-        aristas_normales = [
-            (u, v) for u, v in self.grafo.edges
-            if (u, v) not in aristas_resaltadas
-        ]
-
-        if aristas_normales:
-            nx.draw_networkx_edges(
-                self.grafo, pos, edgelist=aristas_normales,
-                arrows=True, arrowstyle=&quot;-&gt;&quot;, arrowsize=14,
-                edge_color=&quot;#9AA5B1&quot;, width=1.4,
-                connectionstyle=&quot;arc3,rad=0.18&quot;,
-            )
-
-        # Etiquetas de distancia en cada arista
-        etiquetas_km = {
-            (u, v): f&quot;{formato_km(self.grafo.edges[u, v][&#x27;km&#x27;])} km&quot;
-            for u, v in self.grafo.edges
-        }
-        nx.draw_networkx_edge_labels(
-            self.grafo, pos, edge_labels=etiquetas_km,
-            font_size=7, font_color=&quot;#4A5568&quot;,         )
-
-        # Nodos (ciudades)
-        nodos_resaltados = set(ruta_resaltada) if ruta_resaltada else set()
-        colores_nodos = [
-            &quot;#FF8C42&quot; if n in nodos_resaltados else &quot;#4C9FDB&quot;
-            for n in self.grafo.nodes
-        ]
-        nx.draw_networkx_nodes(
-            self.grafo, pos, node_size=tamano_nodos,
-            node_color=colores_nodos, edgecolors=&quot;#2C3E50&quot;,
-            linewidths=1.2,         )
-
-        # Nombre de cada ciudad
-        nx.draw_networkx_labels(
-            self.grafo, pos, font_size=9, font_weight=&quot;bold&quot;,
-            font_color=&quot;#1A2B3C&quot;,         )
-
-        # Ruta resaltada (en rojo y más gruesa)
-        if ruta_resaltada:
-            nx.draw_networkx_edges(
-                self.grafo, pos, edgelist=list(aristas_resaltadas),
-                arrows=True, arrowstyle=&quot;-&gt;&quot;, arrowsize=18,
-                edge_color=&quot;#D64541&quot;, width=3.2,
-                connectionstyle=&quot;arc3,rad=0.18&quot;,
-            )
-            print(&quot;Ruta resaltada en rojo: &quot; + &quot; -&gt; &quot;.join(ruta_resaltada))
-
-        # Límites del mapa con margen
-        margen = 0.6
-        ax.set_xlim(min(todos_lons) - margen, max(todos_lons) + margen)
-        ax.set_ylim(min(todos_lats) - margen, max(todos_lats) + margen)
-        ax.set_aspect(1.09)  # Compensa la distorsión de latitud en México
-
-        ax.grid(True, linestyle=&quot;--&quot;, linewidth=0.4, alpha=0.35, zorder=0)
-        ax.set_xlabel(&quot;Longitud (°)&quot;)
-        ax.set_ylabel(&quot;Latitud (°)&quot;)
-        ax.set_title(&quot;Red de Rutas Aéreas de México&quot;, fontsize=16, fontweight=&quot;bold&quot;)
-
-        plt.tight_layout()
-        plt.show()
-
-
-# --------------------------------------------------------------------------
-# 4. MENÚ INTERACTIVO
-# --------------------------------------------------------------------------
-
-def mostrar_menu() -&gt; None:
-    &quot;&quot;&quot;Imprime el menú de opciones en la consola.&quot;&quot;&quot;
-    print(&quot;\n=============================================&quot;)
-    print(&quot;  SISTEMA DE RUTAS AÉREAS DE MÉXICO&quot;)
-    print(&quot;  Red nacional de vuelos (grafo dirigido)&quot;)
-    print(&quot;=============================================&quot;)
-    print(&quot;1. Agregar Ciudad&quot;)
-    print(&quot;2. Agregar Ruta de Vuelo&quot;)
-    print(&quot;3. Eliminar Ciudad&quot;)
-    print(&quot;4. Eliminar Ruta de Vuelo&quot;)
-    print(&quot;5. Mostrar Mapa de Rutas (Grafo)&quot;)
-    print(&quot;6. Ruta Más Corta entre Ciudades (Dijkstra)&quot;)
-    print(&quot;7. Distancia y Duración de Vuelo&quot;)
-    print(&quot;8. Listar Ciudades y Rutas&quot;)
-    print(&quot;9. Salir&quot;)
-    print(&quot;---------------------------------------------&quot;)
-
-
-def seleccionar_ciudad_del_catalogo(red: RedVuelos) -&gt; str | None:
-    &quot;&quot;&quot;
-    Permite elegir una ciudad del catálogo ampliado de México.
-    Soporta búsqueda escribiendo parte del nombre (sin acentos).
-    Devuelve el nombre canónico o None si se cancela.
-    &quot;&quot;&quot;
-    print(&quot;\n--- Catálogo de Ciudades de México ---&quot;)
-    busqueda = input(&quot;Escriba parte del nombre para buscar (ENTER = mostrar todas): &quot;).strip()
-
-    if busqueda:
-        clave = plegar_acentos(busqueda)
-        resultados = [n for n in CATALOGO_CIUDADES if clave in plegar_acentos(n)]
-        if not resultados:
-            print(f&quot;Sin coincidencias para &#x27;{busqueda}&#x27;. Verifique el nombre.&quot;)
-            return None
-    else:
-        resultados = sorted(CATALOGO_CIUDADES)
-
-    for i, nombre in enumerate(resultados, 1):
-        registrada = &quot; (ya registrada)&quot; if red.grafo.has_node(nombre) else &quot;&quot;
-        print(f&quot;  {i:2d}. {nombre}{registrada}&quot;)
-
-    eleccion = input(&quot;Seleccione el número de la ciudad (0 = cancelar): &quot;).strip()
-    try:
-        indice = int(eleccion)
-    except ValueError:
-        print(&quot;Error: Debe ingresar un número válido.&quot;)
-        return None
-    if indice == 0:
-        return None
-    if indice &lt; 1 or indice &gt; len(resultados):
-        print(&quot;Error: Número fuera de rango.&quot;)
-        return None
-
-    nombre = resultados[indice - 1]
-    if red.grafo.has_node(nombre):
-        print(f&quot;Error: La ciudad &#x27;{nombre}&#x27; ya existe en el sistema.&quot;)
-        return None
-    return nombre
-
-
-def principal() -&gt; None:
-    &quot;&quot;&quot;Bucle principal del programa con el menú interactivo.&quot;&quot;&quot;
-    red = RedVuelos()
-
-    while True:
-        mostrar_menu()
-        opcion_str = input(&quot;Seleccione una opción (1-9): &quot;).strip()
-
-        try:
-            opcion = int(opcion_str)
-            if opcion &lt; 1 or opcion &gt; 9:
-                print(&quot;Error: Por favor, ingrese un número válido entre 1 y 9.&quot;)
-                continue
-        except ValueError:
-            print(&quot;Error: Entrada no válida. Debe ingresar un número.&quot;)
-            continue
-
-        # 1. Agregar ciudad (desde el catálogo con búsqueda)
-        if opcion == 1:
-            nombre = seleccionar_ciudad_del_catalogo(red)
-            if nombre is not None:
-                red.agregar_ciudad(nombre)
-
-        # 2. Agregar ruta de vuelo (con opción de ida y vuelta)
-        elif opcion == 2:
-            origen = input(&quot;Ingrese la ciudad de origen: &quot;)
-            destino = input(&quot;Ingrese la ciudad de destino: &quot;)
-            red.agregar_ruta(origen, destino)
-            redonda = input(&quot;¿Desea agregar también el vuelo de regreso? &quot;
-                            &quot;(s/n): &quot;).strip().lower()
-            if redonda in (&quot;s&quot;, &quot;si&quot;, &quot;sí&quot;):
-                red.agregar_ruta(destino, origen)
-
-        # 3. Eliminar ciudad
-        elif opcion == 3:
-            ciudad = input(&quot;Ingrese la ciudad a eliminar: &quot;)
-            red.eliminar_ciudad(ciudad)
-
-        # 4. Eliminar ruta
-        elif opcion == 4:
-            origen = input(&quot;Ingrese la ciudad de origen de la ruta a eliminar: &quot;)
-            destino = input(&quot;Ingrese la ciudad de destino de la ruta a eliminar: &quot;)
-            red.eliminar_ruta(origen, destino)
-
-        # 5. Mostrar mapa del grafo
-        elif opcion == 5:
-            red.mostrar_grafo()
-
-        # 6. Ruta más corta (Dijkstra)
-        elif opcion == 6:
-            origen = input(&quot;Ingrese la ciudad de origen: &quot;)
-            destino = input(&quot;Ingrese la ciudad de destino: &quot;)
-            print(&quot;¿Qué desea minimizar?&quot;)
-            print(&quot;  1. Distancia total (km)&quot;)
-            print(&quot;  2. Número de escalas&quot;)
-            criterio = input(&quot;Seleccione (1-2): &quot;).strip()
-            por_km = criterio != &quot;2&quot;
-
-            camino = red.ruta_mas_corta(origen, destino, por_km=por_km)
-            if camino is None:
-                continue
-
-            km_total = sum(
-                red.grafo.edges[u, v][&quot;km&quot;] for u, v in zip(camino, camino[1:])
-            )
-            escalas = len(camino) - 2
-            horas = (km_total / VELOCIDAD_CRUCERO_KMH
-                     + TIEMPO_TIERRA_HORAS * (len(camino) - 1))
-
-            print(f&quot;\nRuta más corta encontrada:&quot;)
-            print(f&quot;  Recorrido: {&#x27; -&gt; &#x27;.join(camino)}&quot;)
-            print(f&quot;  Escalas: {escalas}&quot;)
-            print(f&quot;  Distancia total: {formato_km(km_total)} km&quot;)
-            print(f&quot;  Duración estimada: {formato_duracion(horas)}&quot;)
-
-            dibujar = input(&quot;\n¿Desea ver la ruta resaltada en el mapa? &quot;
-                            &quot;(s/n): &quot;).strip().lower()
-            if dibujar in (&quot;s&quot;, &quot;si&quot;, &quot;sí&quot;):
-                red.mostrar_grafo(ruta_resaltada=camino)
-
-        # 7. Distancia y duración de vuelo
-        elif opcion == 7:
-            origen = input(&quot;Ingrese la ciudad de origen: &quot;)
-            destino = input(&quot;Ingrese la ciudad de destino: &quot;)
-            red.distancia_y_duracion(origen, destino)
-
-        # 8. Listar ciudades y rutas
-        elif opcion == 8:
-            red.listar_red()
-
-        # 9. Salir
-        elif opcion == 9:
-            print(&quot;Saliendo del sistema. ¡Hasta luego!&quot;)
-            break
-
-
-if __name__ == &quot;__main__&quot;:
-    try:
-        principal()
-    except KeyboardInterrupt:
-        print(&quot;\nSaliendo del sistema abruptamente...&quot;)
-    except Exception as e:
-        print(f&quot;\nOcurrió un error inesperado: {e}&quot;)
-</pre>
-
-<h2>5. Capturas de Pantalla</h2>
-
-<h3>5.1 Captura 1: Men&uacute; del programa</h3>
-<p><b>Pasos:</b> abrir una terminal, ubicarse en la carpeta del proyecto y
-ejecutar <code>python3 main.py</code>. La pantalla inicial muestra el
-men&uacute; completo con las 9 opciones.</p>
-<div class="captura">[ INSERTAR AQU&Iacute; CAPTURA 1: Men&uacute; del programa ]</div>
-
-<h3>5.2 Captura 2: Primer grafo con algunas ciudades</h3>
-<p><b>Pasos:</b> en el men&uacute;, seleccionar la opci&oacute;n
-<code>5</code> (Mostrar Mapa de Rutas). Se muestra la red inicial con las 13
-ciudades precargadas y sus 25 rutas sobre el mapa de M&eacute;xico.</p>
-<div class="captura">[ INSERTAR AQU&Iacute; CAPTURA 2: Primer grafo generado ]</div>
-
-<h3>5.3 Captura 3: Modificaci&oacute;n agregando ciudad y ruta</h3>
-<p><b>Pasos:</b></p>
-<ol>
-<li>Opci&oacute;n <code>1</code> (Agregar Ciudad).</li>
-<li>En la b&uacute;squeda escribir <code>juar</code> y presionar Enter; la
-lista filtrar&aacute; a Ciudad Ju&aacute;rez.</li>
-<li>Seleccionar el n&uacute;mero correspondiente para agregarla.</li>
-<li>Opci&oacute;n <code>2</code> (Agregar Ruta): origen
-<code>Ciudad de M&eacute;xico</code>, destino <code>Ciudad Ju&aacute;rez</code>,
-y responder <code>s</code> a la pregunta de vuelo de regreso.</li>
-<li>Opci&oacute;n <code>5</code> para ver el mapa actualizado.</li>
-</ol>
-<div class="captura">[ INSERTAR AQU&Iacute; CAPTURA 3: Grafo modificado
-(agregando ciudad y ruta) ]</div>
-
-<h3>5.4 Captura 4: Otra modificaci&oacute;n del grafo (ruta m&aacute;s corta
-resaltada)</h3>
-<p><b>Pasos:</b></p>
-<ol>
-<li>Opci&oacute;n <code>6</code> (Ruta M&aacute;s Corta).</li>
-<li>Origen <code>Tijuana</code>, destino <code>Canc&uacute;n</code>, criterio
-<code>1</code> (distancia en km).</li>
-<li>Responder <code>s</code> para ver la ruta resaltada en rojo sobre el
-mapa.</li>
-</ol>
-<div class="captura">[ INSERTAR AQU&Iacute; CAPTURA 4: Grafo con la ruta m&aacute;s
-corta resaltada ]</div>
-
-<h3>5.5 Captura 5: Otra modificaci&oacute;n (eliminaci&oacute;n de una ciudad)</h3>
-<p><b>Pasos:</b></p>
-<ol>
-<li>Opci&oacute;n <code>3</code> (Eliminar Ciudad) e ingresar
-<code>Oaxaca</code>; el programa elimina la ciudad y todas sus rutas.</li>
-<li>Opci&oacute;n <code>8</code> (Listar Ciudades y Rutas) para comprobar en
-consola que la ciudad ya no aparece.</li>
-<li>Opci&oacute;n <code>5</code> para ver el mapa sin la ciudad eliminada.</li>
-</ol>
-<div class="captura">[ INSERTAR AQU&Iacute; CAPTURA 5: Grafo despu&eacute;s de
-eliminar una ciudad ]</div>
-
-
-<h2>6. Conclusi&oacute;n</h2>
-
-<p><b>Qu&eacute; aprend&iacute; realizando el proyecto.</b> A lo largo del
-proyecto aprend&iacute; a modelar un problema real (las rutas de una
-aerol&iacute;nea) con una estructura matem&aacute;tica abstracta: el grafo
-dirigido. Comprend&iacute; c&oacute;mo se representa un grafo en c&oacute;digo
-con la librer&iacute;a NetworkX, c&oacute;mo almacenar informaci&oacute;n en
-los nodos y aristas (coordenadas y distancias), y c&oacute;mo visualizarlo
-con Matplotlib. Tambi&eacute;n aprend&iacute; a calcular distancias reales
-entre dos puntos con la f&oacute;rmula de Haversine y a aplicar el algoritmo
-de Dijkstra para encontrar la ruta m&aacute;s corta, adem&aacute;s de
-manejar entradas del usuario con validaci&oacute;n de errores y organizar el
-c&oacute;digo en funciones y clases.</p>
-
-<p><b>Qu&eacute; dificultades encontr&eacute;.</b> La principal dificultad fue
-la parte geogr&aacute;fica: obtener las coordenadas reales de las ciudades y
-el contorno del territorio mexicano, y lograr que cada ciudad apareciera
-dentro del mapa en su posici&oacute;n correcta. Otra dificultad fue
-representar visualmente las flechas de un grafo dirigido cuando existen
-vuelos en ambos sentidos entre dos ciudades, ya que se sobreponen; se
-resolvi&oacute; curvando las flechas. Tambi&eacute;n fue un reto validar todas
-las entradas del usuario (opciones inv&aacute;lidas, ciudades inexistentes,
-rutas duplicadas) para que el programa nunca se detuviera por un error.</p>
-
-<p><b>C&oacute;mo se pueden aplicar los grafos en problemas reales.</b> Los
-grafos tienen aplicaci&oacute;n pr&aacute;ctica casi ilimitada: las
-aerol&iacute;neas los usan para planear sus redes de vuelos y calcular
-itinerarios; los navegadores GPS para encontrar la ruta m&aacute;s r&aacute;pida
-en carretera; las empresas de paqueter&iacute;a para optimizar sus rutas de
-reparto; las redes sociales para sugerir amigos; e incluso el internet se
-modela como un grafo gigante por el que viajan los datos. Este proyecto
-demuestra que con unas cuantas l&iacute;neas de Python es posible construir
-una simulaci&oacute;n de un sistema de transporte nacional, y que la teor&iacute;a
-de grafos, lejos de ser un tema abstracto, resuelve problemas cotidianos.</p>
-
-
-</body>
-</html>

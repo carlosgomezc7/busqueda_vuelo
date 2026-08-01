@@ -856,10 +856,10 @@ class RedVuelos:
         """Imprime en consola todas las ciudades y rutas registradas."""
         print(f"\n=== RED ACTUAL: {self.grafo.number_of_nodes()} ciudades, "
               f"{self.grafo.number_of_edges()} rutas ===")
-        print("\nCiudades:")
+        print("\nCiudades registradas:")
         for nombre in sorted(self.grafo.nodes):
             lat, lon = self.grafo.nodes[nombre]["pos"]
-            print(f"  - {nombre}  ({lat:.2f}, {lon:.2f})")
+            print(f"  - {nombre:<28} (Latitud: {lat:.2f}° N, Longitud: {abs(lon):.2f}° O)")
         print("\nRutas de vuelo (dirigidas):")
         if self.grafo.number_of_edges() == 0:
             print("  (Sin rutas registradas)")
@@ -867,11 +867,35 @@ class RedVuelos:
             km = self.grafo.edges[origen, destino]["km"]
             print(f"  - {origen} -> {destino}   ({formato_km(km)} km)")
 
+    def listar_ciudades_disponibles(self) -> None:
+        """
+        Muestra todas las ciudades disponibles en el catálogo de México
+        junto con su latitud y su estado actual en la red.
+        """
+        total_catalogo = len(CATALOGO_CIUDADES)
+        registradas = sum(1 for c in CATALOGO_CIUDADES if self.grafo.has_node(c))
+
+        print("\n=============================================================")
+        print("  CATÁLOGO DE CIUDADES DISPONIBLES EN MÉXICO")
+        print("=============================================================")
+        print(f"Total en catálogo: {total_catalogo} ciudades | En la red activa: {registradas} ciudades\n")
+        print(f"  {'No.':<4} {'Ciudad':<30} {'Latitud':<12} {'Longitud':<12} {'Estado'}")
+        print("  " + "-" * 70)
+
+        for i, (nombre, (lat, lon)) in enumerate(sorted(CATALOGO_CIUDADES.items()), 1):
+            estado = "En la red" if self.grafo.has_node(nombre) else "Disponible"
+            lat_str = f"{lat:.2f}° N"
+            lon_str = f"{abs(lon):.2f}° O"
+            print(f"  {i:<4} {nombre:<30} {lat_str:<12} {lon_str:<12} {estado}")
+        print("-------------------------------------------------------------\n")
+
+
     def mostrar_grafo(self, ruta_resaltada: list | None = None) -> None:
         """
-        Dibuja la red de rutas aéreas sobre el mapa de México.
+        Dibuja la red de rutas aéreas sobre el mapa de México con un estilo
+        de grafo minimalista (fondo oscuro, nodos limpios, aristas sutiles).
         Si se indica una ruta_resaltada (lista de ciudades), se pinta
-        en rojo sobre el mapa.
+        con un color de acento sobre el mapa.
         """
         if self.grafo.number_of_nodes() == 0:
             print("El sistema no tiene ciudades registradas para mostrar. "
@@ -881,30 +905,39 @@ class RedVuelos:
         print(f"Generando mapa con {self.grafo.number_of_nodes()} ciudades y "
               f"{self.grafo.number_of_edges()} rutas...")
 
-        fig, ax = plt.subplots(figsize=(12, 8))
+        # ── Paleta minimalista ──────────────────────────────────────────
+        COLOR_BG       = "#0F1117"   # fondo oscuro profundo
+        COLOR_TERRA    = "#1A1E2B"   # relleno territorio
+        COLOR_BORDE    = "#2A3045"   # borde territorio
+        COLOR_ARISTA   = "#3A4060"   # aristas normales
+        COLOR_NODO     = "#5B8DEE"   # nodos base (azul suave)
+        COLOR_HALO     = "#5B8DEE"   # halo nodo
+        COLOR_RUTA     = "#F06449"   # ruta resaltada (coral)
+        COLOR_NODO_RT  = "#F06449"   # nodos de la ruta
+        COLOR_TEXTO    = "#E8ECF1"   # texto claro
 
-        # Fondo oceánico
-        ax.set_facecolor("#EAF6FF")
+        fig, ax = plt.subplots(figsize=(14, 9))
+        fig.patch.set_facecolor(COLOR_BG)
+        ax.set_facecolor(COLOR_BG)
 
-        # Contorno del territorio mexicano (todos los anillos del país)
+        # ── Contorno del territorio mexicano (sutil) ────────────────────
         todos_lons, todos_lats = [], []
         for anillo in FRONTERA_MEXICO:
             lons_anillo = [p[0] for p in anillo]
             lats_anillo = [p[1] for p in anillo]
-            ax.fill(lons_anillo, lats_anillo, facecolor="#E7F2DC",
-                    edgecolor="#8FAE8B", linewidth=1.2, zorder=1)
+            ax.fill(lons_anillo, lats_anillo, facecolor=COLOR_TERRA,
+                    edgecolor=COLOR_BORDE, linewidth=0.8, zorder=1)
             todos_lons.extend(lons_anillo)
             todos_lats.extend(lats_anillo)
 
-        # Posiciones geográficas de los nodos
+        # ── Posiciones geográficas ──────────────────────────────────────
         pos = {nombre: (datos["pos"][1], datos["pos"][0])  # (lon, lat)
                for nombre, datos in self.grafo.nodes(data=True)}
 
-        # Tamaño del nodo según su número de conexiones (hub)
         grados = dict(self.grafo.degree())
-        tamano_nodos = [400 + 120 * grados[n] for n in self.grafo.nodes]
+        max_grado = max(grados.values()) if grados else 1
 
-        # Aristas normales (grises)
+        # ── Aristas ────────────────────────────────────────────────────
         aristas_resaltadas = (set(zip(ruta_resaltada, ruta_resaltada[1:]))
                               if ruta_resaltada else set())
         aristas_normales = [
@@ -912,59 +945,149 @@ class RedVuelos:
             if (u, v) not in aristas_resaltadas
         ]
 
-        if aristas_normales:
-            nx.draw_networkx_edges(
-                self.grafo, pos, edgelist=aristas_normales,
-                arrows=True, arrowstyle="->", arrowsize=14,
-                edge_color="#9AA5B1", width=1.4,
-                connectionstyle="arc3,rad=0.18",
-            )
+        # Dibujar aristas manualmente para control de alpha
+        for u, v in aristas_normales:
+            x0, y0 = pos[u]
+            x1, y1 = pos[v]
+            ax.plot([x0, x1], [y0, y1], color=COLOR_ARISTA,
+                    linewidth=0.7, alpha=0.45, zorder=2, solid_capstyle="round")
 
-        # Etiquetas de distancia en cada arista
-        etiquetas_km = {
-            (u, v): f"{formato_km(self.grafo.edges[u, v]['km'])} km"
-            for u, v in self.grafo.edges
-        }
-        nx.draw_networkx_edge_labels(
-            self.grafo, pos, edge_labels=etiquetas_km,
-            font_size=7, font_color="#4A5568",         )
-
-        # Nodos (ciudades)
+        # ── Nodos ──────────────────────────────────────────────────────
         nodos_resaltados = set(ruta_resaltada) if ruta_resaltada else set()
-        colores_nodos = [
-            "#FF8C42" if n in nodos_resaltados else "#4C9FDB"
-            for n in self.grafo.nodes
-        ]
-        nx.draw_networkx_nodes(
-            self.grafo, pos, node_size=tamano_nodos,
-            node_color=colores_nodos, edgecolors="#2C3E50",
-            linewidths=1.2,         )
+        nombres_nodos = list(self.grafo.nodes)
+        coords_nodos = [pos[n] for n in nombres_nodos]
 
-        # Nombre de cada ciudad
-        nx.draw_networkx_labels(
-            self.grafo, pos, font_size=9, font_weight="bold",
-            font_color="#1A2B3C",         )
+        for nombre in nombres_nodos:
+            cx, cy = pos[nombre]
+            g = grados[nombre]
+            # Radio proporcional al grado (normalizado)
+            r_base = 4 + 6 * (g / max_grado)
+            es_ruta = nombre in nodos_resaltados
 
-        # Ruta resaltada (en rojo y más gruesa)
+            # Halo externo (glow)
+            color_h = COLOR_RUTA if es_ruta else COLOR_HALO
+            ax.plot(cx, cy, 'o', markersize=r_base + 5,
+                    color=color_h, alpha=0.15, zorder=3)
+            ax.plot(cx, cy, 'o', markersize=r_base + 2.5,
+                    color=color_h, alpha=0.25, zorder=3)
+
+            # Punto principal
+            color_n = COLOR_NODO_RT if es_ruta else COLOR_NODO
+            ax.plot(cx, cy, 'o', markersize=r_base,
+                    color=color_n, alpha=0.95, zorder=4,
+                    markeredgecolor="white", markeredgewidth=0.4)
+
+        # ── Ruta resaltada ─────────────────────────────────────────────
         if ruta_resaltada:
-            nx.draw_networkx_edges(
-                self.grafo, pos, edgelist=list(aristas_resaltadas),
-                arrows=True, arrowstyle="->", arrowsize=18,
-                edge_color="#D64541", width=3.2,
-                connectionstyle="arc3,rad=0.18",
-            )
-            print("Ruta resaltada en rojo: " + " -> ".join(ruta_resaltada))
+            for u, v in aristas_resaltadas:
+                x0, y0 = pos[u]
+                x1, y1 = pos[v]
+                # Glow de la ruta
+                ax.plot([x0, x1], [y0, y1], color=COLOR_RUTA,
+                        linewidth=4.5, alpha=0.18, zorder=5,
+                        solid_capstyle="round")
+                # Línea de la ruta
+                ax.plot([x0, x1], [y0, y1], color=COLOR_RUTA,
+                        linewidth=2.0, alpha=0.90, zorder=6,
+                        solid_capstyle="round")
+                # Flecha indicadora de dirección
+                mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+                dx, dy = x1 - x0, y1 - y0
+                ax.annotate("", xy=(mx + dx * 0.01, my + dy * 0.01),
+                            xytext=(mx - dx * 0.01, my - dy * 0.01),
+                            arrowprops=dict(arrowstyle="->", color=COLOR_RUTA,
+                                            lw=1.8), zorder=7)
+            print("Ruta resaltada: " + " → ".join(ruta_resaltada))
 
-        # Límites del mapa con margen
-        margen = 0.6
+        # ── Tooltip interactivo (hover / clic) ─────────────────────────
+        annot = ax.annotate(
+            "", xy=(0, 0), xytext=(14, 14),
+            textcoords="offset points",
+            bbox=dict(boxstyle="round,pad=0.5", fc="#1C2033", ec="#5B8DEE",
+                      lw=1.2, alpha=0.95),
+            fontsize=9, fontweight="bold", color=COLOR_TEXTO,
+            zorder=10, visible=False,
+        )
+
+        ciudad_fijada = {"nombre": None}
+
+        def _info_ciudad(nombre):
+            """Genera texto informativo para el tooltip."""
+            g = grados[nombre]
+            vecinos = list(self.grafo.successors(nombre))
+            lineas = [f"✈  {nombre}", f"   {g} conexiones"]
+            if vecinos:
+                lista = ", ".join(sorted(vecinos)[:6])
+                if len(vecinos) > 6:
+                    lista += f" (+{len(vecinos) - 6})"
+                lineas.append(f"   → {lista}")
+            return "\n".join(lineas)
+
+        def _nodo_cercano(event):
+            dist_min, nombre_min = float("inf"), None
+            for nombre, (cx, cy) in zip(nombres_nodos, coords_nodos):
+                px, py = ax.transData.transform((cx, cy))
+                d = ((event.x - px) ** 2 + (event.y - py) ** 2) ** 0.5
+                if d < dist_min:
+                    dist_min, nombre_min = d, nombre
+            return nombre_min if dist_min < 20 else None
+
+        def _mostrar_tooltip(nombre):
+            cx, cy = pos[nombre]
+            annot.xy = (cx, cy)
+            annot.set_text(_info_ciudad(nombre))
+            annot.set_visible(True)
+
+        def _on_move(event):
+            if event.inaxes != ax or ciudad_fijada["nombre"]:
+                return
+            nombre = _nodo_cercano(event)
+            if nombre:
+                _mostrar_tooltip(nombre)
+            else:
+                annot.set_visible(False)
+            fig.canvas.draw_idle()
+
+        def _on_click(event):
+            if event.inaxes != ax:
+                return
+            if ciudad_fijada["nombre"]:
+                ciudad_fijada["nombre"] = None
+                annot.set_visible(False)
+                fig.canvas.draw_idle()
+                return
+            nombre = _nodo_cercano(event)
+            if nombre:
+                ciudad_fijada["nombre"] = nombre
+                _mostrar_tooltip(nombre)
+                fig.canvas.draw_idle()
+
+        fig.canvas.mpl_connect("motion_notify_event", _on_move)
+        fig.canvas.mpl_connect("button_press_event", _on_click)
+
+        # ── Límites y aspecto ──────────────────────────────────────────
+        margen = 0.8
         ax.set_xlim(min(todos_lons) - margen, max(todos_lons) + margen)
         ax.set_ylim(min(todos_lats) - margen, max(todos_lats) + margen)
-        ax.set_aspect(1.09)  # Compensa la distorsión de latitud en México
+        ax.set_aspect(1.09)
 
-        ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.35, zorder=0)
-        ax.set_xlabel("Longitud (°)")
-        ax.set_ylabel("Latitud (°)")
-        ax.set_title("Red de Rutas Aéreas de México", fontsize=16, fontweight="bold")
+        # Eliminar ejes y bordes para un look limpio
+        ax.set_xticks([])
+        ax.set_yticks([])
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+        # Título discreto
+        ax.set_title("Red de Rutas Aéreas",
+                     fontsize=14, fontweight=300, color="#8090A8",
+                     pad=12, loc="left")
+
+        # Leyenda mínima
+        ax.text(0.99, 0.02,
+                f"{self.grafo.number_of_nodes()} ciudades  ·  "
+                f"{self.grafo.number_of_edges()} rutas",
+                transform=ax.transAxes, fontsize=8, color="#556070",
+                ha="right", va="bottom")
 
         plt.tight_layout()
         plt.show()
@@ -987,8 +1110,9 @@ def mostrar_menu() -> None:
     print("5. Mostrar Mapa de Rutas (Grafo)")
     print("6. Ruta Más Corta entre Ciudades (Dijkstra)")
     print("7. Distancia y Duración de Vuelo")
-    print("8. Listar Ciudades y Rutas")
-    print("9. Salir")
+    print("8. Listar Ciudades y Rutas Registradas")
+    print("9. Ver Ciudades Disponibles y Latitud")
+    print("10. Salir")
     print("---------------------------------------------")
 
 
@@ -1033,18 +1157,26 @@ def seleccionar_ciudad_del_catalogo(red: RedVuelos) -> str | None:
     return nombre
 
 
+def pedir_input(mensaje: str) -> str | None:
+    """Solicita texto al usuario, permitiendo regresar con '0'."""
+    valor = input(f"{mensaje} (o '0' para regresar): ").strip()
+    if valor == '0':
+        return None
+    return valor
+
+
 def principal() -> None:
     """Bucle principal del programa con el menú interactivo."""
     red = RedVuelos()
 
     while True:
         mostrar_menu()
-        opcion_str = input("Seleccione una opción (1-9): ").strip()
+        opcion_str = input("Seleccione una opción (1-10): ").strip()
 
         try:
             opcion = int(opcion_str)
-            if opcion < 1 or opcion > 9:
-                print("Error: Por favor, ingrese un número válido entre 1 y 9.")
+            if opcion < 1 or opcion > 10:
+                print("Error: Por favor, ingrese un número válido entre 1 y 10.")
                 continue
         except ValueError:
             print("Error: Entrada no válida. Debe ingresar un número.")
@@ -1058,23 +1190,27 @@ def principal() -> None:
 
         # 2. Agregar ruta de vuelo (con opción de ida y vuelta)
         elif opcion == 2:
-            origen = input("Ingrese la ciudad de origen: ")
-            destino = input("Ingrese la ciudad de destino: ")
+            origen = pedir_input("Ingrese la ciudad de origen")
+            if origen is None: continue
+            destino = pedir_input("Ingrese la ciudad de destino")
+            if destino is None: continue
             red.agregar_ruta(origen, destino)
-            redonda = input("¿Desea agregar también el vuelo de regreso? "
-                            "(s/n): ").strip().lower()
-            if redonda in ("s", "si", "sí"):
+            redonda = pedir_input("¿Desea agregar también el vuelo de regreso? (s/n)")
+            if redonda and redonda.lower() in ("s", "si", "sí"):
                 red.agregar_ruta(destino, origen)
 
         # 3. Eliminar ciudad
         elif opcion == 3:
-            ciudad = input("Ingrese la ciudad a eliminar: ")
+            ciudad = pedir_input("Ingrese la ciudad a eliminar")
+            if ciudad is None: continue
             red.eliminar_ciudad(ciudad)
 
         # 4. Eliminar ruta
         elif opcion == 4:
-            origen = input("Ingrese la ciudad de origen de la ruta a eliminar: ")
-            destino = input("Ingrese la ciudad de destino de la ruta a eliminar: ")
+            origen = pedir_input("Ingrese la ciudad de origen de la ruta a eliminar")
+            if origen is None: continue
+            destino = pedir_input("Ingrese la ciudad de destino de la ruta a eliminar")
+            if destino is None: continue
             red.eliminar_ruta(origen, destino)
 
         # 5. Mostrar mapa del grafo
@@ -1083,12 +1219,15 @@ def principal() -> None:
 
         # 6. Ruta más corta (Dijkstra)
         elif opcion == 6:
-            origen = input("Ingrese la ciudad de origen: ")
-            destino = input("Ingrese la ciudad de destino: ")
+            origen = pedir_input("Ingrese la ciudad de origen")
+            if origen is None: continue
+            destino = pedir_input("Ingrese la ciudad de destino")
+            if destino is None: continue
             print("¿Qué desea minimizar?")
             print("  1. Distancia total (km)")
             print("  2. Número de escalas")
-            criterio = input("Seleccione (1-2): ").strip()
+            criterio = pedir_input("Seleccione (1-2)")
+            if criterio is None: continue
             por_km = criterio != "2"
 
             camino = red.ruta_mas_corta(origen, destino, por_km=por_km)
@@ -1108,31 +1247,33 @@ def principal() -> None:
             print(f"  Distancia total: {formato_km(km_total)} km")
             print(f"  Duración estimada: {formato_duracion(horas)}")
 
-            dibujar = input("\n¿Desea ver la ruta resaltada en el mapa? "
-                            "(s/n): ").strip().lower()
-            if dibujar in ("s", "si", "sí"):
+            dibujar = pedir_input("\n¿Desea ver la ruta resaltada en el mapa? (s/n)")
+            if dibujar and dibujar.lower() in ("s", "si", "sí"):
                 red.mostrar_grafo(ruta_resaltada=camino)
 
         # 7. Distancia y duración de vuelo
         elif opcion == 7:
-            origen = input("Ingrese la ciudad de origen: ")
-            destino = input("Ingrese la ciudad de destino: ")
+            origen = pedir_input("Ingrese la ciudad de origen")
+            if origen is None: continue
+            destino = pedir_input("Ingrese la ciudad de destino")
+            if destino is None: continue
             red.distancia_y_duracion(origen, destino)
 
-        # 8. Listar ciudades y rutas
+        # 8. Listar ciudades y rutas registradas
         elif opcion == 8:
             red.listar_red()
 
-        # 9. Salir
+        # 9. Ver ciudades disponibles y latitud
         elif opcion == 9:
+            red.listar_ciudades_disponibles()
+
+        # 10. Salir
+        elif opcion == 10:
             print("Saliendo del sistema. ¡Hasta luego!")
             break
 
 
 if __name__ == "__main__":
-    try:
-        principal()
-    except KeyboardInterrupt:
-        print("\nSaliendo del sistema abruptamente...")
-    except Exception as e:
-        print(f"\nOcurrió un error inesperado: {e}")
+    from gui import AppGUI
+    app = AppGUI()
+    app.mainloop()
