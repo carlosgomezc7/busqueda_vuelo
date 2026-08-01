@@ -156,3 +156,4 @@ El catálogo completo incluye más de **65 ciudades** mexicanas con coordenadas 
 - **Grafo dirigido**: las rutas tienen dirección (ida ≠ vuelta)
 - **Contorno geográfico real**: polígonos simplificados de los 32 estados de México
 - **Interfaz dual**: GUI (Tkinter) y CLI (consola interactiva)
+Test
