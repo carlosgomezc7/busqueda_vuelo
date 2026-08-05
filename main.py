@@ -21,7 +21,7 @@ import networkx as nx
 # 1. DATOS GEOGRÁFICOS
 # --------------------------------------------------------------------------
 
-# Contorno de la República Mexicana (polígonos de los 32 estados, simplificados).
+# Contorno de la República Mexicana 
 # Cada anillo es una lista de puntos (longitud, latitud).
 FRONTERA_MEXICO = [  # lista de polígonos (anillos) del contorno del país
     [
@@ -586,7 +586,6 @@ PALABRAS_MENORES = {"de", "del", "la", "las", "los", "y", "el"}
 _TABLA_ACENTOS = str.maketrans(
     "áéíóúüñÁÉÍÓÚÜÑ", "aeiouuñAEIOUUN"
 )
-
 
 # --------------------------------------------------------------------------
 # 2. FUNCIONES AUXILIARES
